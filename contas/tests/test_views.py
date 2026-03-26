@@ -24,7 +24,7 @@ class LoginViewTestCase(TestCase):
     def test_login_ok(self):
         """ Teste de login com credenciais corretas """
         response = self.client.get(self.login_url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'contas/login.html')
         data = {'email': self.user.email, 'senha': '123'}
         response = self.client.post(self.login_url, data)
@@ -36,7 +36,7 @@ class LoginViewTestCase(TestCase):
         """ Teste de login com credenciais incorretas """
         data = {'email': self.user.email, 'senha': '1234'}
         response = self.client.post(self.login_url, data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'contas/login.html')
 
 class CadastroViewTestCase(TestCase):
@@ -55,7 +55,7 @@ class CadastroViewTestCase(TestCase):
         response = self.client.post(self.register_url, data)
         index_url = reverse('perfil')
         self.assertRedirects(response, index_url)
-        self.assertEquals(self.model_user.objects.count(), 1)
+        self.assertEqual(self.model_user.objects.count(), 1)
 
     def test_cadastro_senhas_diferentes(self):
         """ Teste de cadastro de usuário com senhas diferentes """
@@ -64,9 +64,9 @@ class CadastroViewTestCase(TestCase):
             'email': 'meuemail2@email.com', 'password1': 'senhasecret4', 'password2': 'senhasecret3'
         }
         response = self.client.post(self.register_url, data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'contas/cadastro-usuario.html')
-        self.assertEquals(self.model_user.objects.count(), 0)
+        self.assertEqual(self.model_user.objects.count(), 0)
 
     def test_cadastro_sem_email(self):
         """ Teste de cadastro de usuário com senhas diferentes """
@@ -75,9 +75,9 @@ class CadastroViewTestCase(TestCase):
             'email': '', 'password1': 'senhasecret4', 'password2': 'senhasecret4'
         }
         response = self.client.post(self.register_url, data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'contas/cadastro-usuario.html')
-        self.assertEquals(self.model_user.objects.count(), 0)
+        self.assertEqual(self.model_user.objects.count(), 0)
 
 
 class CadastroUpdateTestCase(TestCase):
@@ -115,26 +115,26 @@ class CadastroUpdateTestCase(TestCase):
             'blog': 'https://meublog.com'
         }
         response = self.client.get(self.url)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.client.login(email=self.user.email, password='123')
         response = self.client.post(self.url, data, format='multipart')
         self.assertRedirects(response, self.url)
         self.user.refresh_from_db()
-        self.assertEquals(self.user.email, 'teste_atualizado@teste.com')
-        self.assertEquals(self.user.first_name, 'novo nome')
-        self.assertEquals(self.user.perfil.biografia, 'Minha biografia de teste')
+        self.assertEqual(self.user.email, 'teste_atualizado@teste.com')
+        self.assertEqual(self.user.first_name, 'novo nome')
+        self.assertEqual(self.user.perfil.biografia, 'Minha biografia de teste')
         self.assertTrue(self.user.perfil.foto.url)
-        self.assertEquals(self.user.perfil.facebook, 'https://facebook.com/perfil')
-        self.assertEquals(self.user.perfil.instagram, 'https://instagram.com/perfil')
-        self.assertEquals(self.user.perfil.twitter, 'https://twitter.com/perfil')
-        self.assertEquals(self.user.perfil.blog, 'https://meublog.com')
+        self.assertEqual(self.user.perfil.facebook, 'https://facebook.com/perfil')
+        self.assertEqual(self.user.perfil.instagram, 'https://instagram.com/perfil')
+        self.assertEqual(self.user.perfil.twitter, 'https://twitter.com/perfil')
+        self.assertEqual(self.user.perfil.blog, 'https://meublog.com')
 
     def test_update_user_error(self):
         """ Teste atualizando email com dados vazios """
         data = {'email': ''}
         self.client.login(email=self.user.email, password='123')
         response = self.client.post(self.url, data)
-        self.assertFormError(response, 'form_user', 'email', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form_user'], 'email', 'Este campo é obrigatório.')
 
 
 class AlteracaoSenhaTestCase(TestCase):
@@ -155,7 +155,7 @@ class AlteracaoSenhaTestCase(TestCase):
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.get(self.url_alterar_senha)
         self.assertTemplateUsed(response, 'contas/alterar-senha.html')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         data = {
             'old_password' : 'senha_secreta',
@@ -164,7 +164,7 @@ class AlteracaoSenhaTestCase(TestCase):
         }
         response = self.client.post(self.url_alterar_senha, data)
         self.assertRedirects(response, reverse('home'))
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("novaSenha123"))
 
@@ -172,7 +172,7 @@ class AlteracaoSenhaTestCase(TestCase):
         """ Acessando Alteração de senha sem estar logado """
         response = self.client.get(self.url_alterar_senha)
         self.assertRedirects(response, reverse('login') + f"?next={self.url_alterar_senha}")
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_alterando_com_senha_antiga_incorreta(self):
         """ Alterando senha com senha antiga incorreta"""
@@ -184,7 +184,7 @@ class AlteracaoSenhaTestCase(TestCase):
         }
         response = self.client.post(self.url_alterar_senha, data)
         self.assertFormError(
-            response, 'form', 'old_password',
+            response.context['form'], 'old_password',
             'A senha antiga foi digitada incorretamente. Por favor, informe-a novamente.'
         )
 
@@ -221,7 +221,7 @@ class RedefinirSenhaTestCase(TestCase):
         # Testa rota e template
         response = self.client.get(reverse('redefinir_senha'))
         self.assertTemplateUsed(response, 'contas/redefinicao-senha/redefinir-senha.html')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         data = {
             'email': 'teste@teste.com'
         }
@@ -235,7 +235,7 @@ class RedefinirSenhaTestCase(TestCase):
         uid = response.context[0]['uid']
         url_confirmar_redefinicao_senha = reverse('confirmar_redefinir_senha', kwargs={'token':token,'uidb64':uid})
         response = self.client.get(url_confirmar_redefinicao_senha, follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'contas/redefinicao-senha/confirmar-redefinir-senha.html')
 
         # Testa redefinição de nova senha com dados incorretos
@@ -270,7 +270,7 @@ class RedefinirSenhaTestCase(TestCase):
         # Testa se link utilizado está inválido
         url_confirmar_redefinicao_senha = reverse('confirmar_redefinir_senha', kwargs={'token':token,'uidb64':uid})
         response = self.client.get(url_confirmar_redefinicao_senha, follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "O link para validar senha é inválido")
 
     def test_redefinicao_senha_email_inexistente(self):
@@ -279,4 +279,4 @@ class RedefinirSenhaTestCase(TestCase):
             'email': 'email@teste.com'
         }
         response = self.client.post(reverse('redefinir_senha'), data)
-        self.assertFormError(response, 'form', 'email', 'Não existe um usuário com esse email')
+        self.assertFormError(response.context['form'], 'email', 'Não existe um usuário com esse email')

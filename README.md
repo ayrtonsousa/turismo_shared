@@ -2,6 +2,10 @@
 Um espaço para publicação de opiniões sobre viagens a pontos turísticos ao redor do mundo usando o framework Django 
 
 ### Instalação
+
+#### Versão Python
+Python 3.13.x 
+
 #### Clonar repositório
 ```
 git clone https://github.com/AyrtonMoises/turismo_shared.git

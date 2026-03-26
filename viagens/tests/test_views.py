@@ -50,7 +50,7 @@ class CadastroViagemTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={self.url_minhas_viagens}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.get(self.url_minhas_viagens)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/cadastro/minhas-viagens.html')
 
     def test_acesso_cadastro_viagem(self):
@@ -59,7 +59,7 @@ class CadastroViagemTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={self.url_cadastro_viagem}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.get(self.url_cadastro_viagem)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/cadastro/cadastro-viagem.html')
 
     def test_cadastrar_viagem_ok(self):
@@ -77,7 +77,7 @@ class CadastroViagemTestCase(TestCase):
             'foto': self.foto
         }
         response = self.client.post(self.url_cadastro_viagem, data, format='multipart')
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, self.url_minhas_viagens)
 
     def test_cadastrar_viagem_error(self):
@@ -92,11 +92,11 @@ class CadastroViagemTestCase(TestCase):
             'ativo': True
         }
         response = self.client.post(self.url_cadastro_viagem, data, format='multipart')
-        self.assertFormError(response, 'form', 'titulo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'localidade', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'resumo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'foto', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'avaliacao', 'Faça uma escolha válida. 999 não é uma das escolhas disponíveis.')
+        self.assertFormError(response.context['form'], 'titulo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'localidade', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'resumo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'foto', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'avaliacao', 'Faça uma escolha válida. 999 não é uma das escolhas disponíveis.')
 
     def test_atualizar_viagem_ok(self):
         """ Teste atualizando cadastro de viagem """
@@ -111,14 +111,14 @@ class CadastroViagemTestCase(TestCase):
             'ativo': False
         }
         response = self.client.post(reverse('editar-viagem', kwargs={'pk': self.viagem.id}), data, format='multipart')
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('editar-viagem', kwargs={'pk': self.viagem.id}))
         self.viagem.refresh_from_db()
-        self.assertEquals(self.viagem.titulo, 'Novo titulo')
-        self.assertEquals(self.viagem.localidade, 'Nova localidade')
-        self.assertEquals(self.viagem.resumo, 'Novo resumo')
-        self.assertEquals(self.viagem.avaliacao, 3)
-        self.assertEquals(self.viagem.ativo, False)
+        self.assertEqual(self.viagem.titulo, 'Novo titulo')
+        self.assertEqual(self.viagem.localidade, 'Nova localidade')
+        self.assertEqual(self.viagem.resumo, 'Novo resumo')
+        self.assertEqual(self.viagem.avaliacao, 3)
+        self.assertEqual(self.viagem.ativo, False)
 
     def test_atualizar_viagem_error(self):
         """ Teste atualizando cadastro de viagem com erro """
@@ -130,9 +130,9 @@ class CadastroViagemTestCase(TestCase):
             'avaliacao': 999,
         }
         response = self.client.post(reverse('editar-viagem', kwargs={'pk': self.viagem.id}), data, format='multipart')
-        self.assertFormError(response, 'form', 'titulo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'resumo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'avaliacao', 'Faça uma escolha válida. 999 não é uma das escolhas disponíveis.')
+        self.assertFormError(response.context['form'], 'titulo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'resumo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'avaliacao', 'Faça uma escolha válida. 999 não é uma das escolhas disponíveis.')
 
     def test_deletar_viagem(self):
         """ Teste deletar viagem cadastrada """
@@ -141,10 +141,10 @@ class CadastroViagemTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={url_deletar_viagem}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.get(url_deletar_viagem)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/cadastro/deletar-viagem.html')
         response = self.client.post(url_deletar_viagem)
-        self.assertEquals(Viagem.objects.count(), 0)
+        self.assertEqual(Viagem.objects.count(), 0)
 
 
 class HomeTestCase(TestCase):
@@ -191,7 +191,7 @@ class HomeTestCase(TestCase):
     def test_acesso_home(self):
         """ Teste de acesso a Minhas Viagens """
         response = self.client.get(self.url_home)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'home/index.html')
 
     def test_destaques_home(self):
@@ -203,14 +203,14 @@ class HomeTestCase(TestCase):
 
         response = self.client.get(self.url_home)
         viagens_destaque = response.context['destaques']
-        self.assertEquals(viagens_destaque[0].titulo, 'Segunda viagem')
-        self.assertEquals(viagens_destaque.count(), 3)
+        self.assertEqual(viagens_destaque[0].titulo, 'Segunda viagem')
+        self.assertEqual(viagens_destaque.count(), 3)
 
     def test_ultimas_viagens_home(self):
         """ Testar exibição das últimas viagens """
         response = self.client.get(self.url_home)
         ultimas_viagens = response.context['ultimas_viagens']
-        self.assertEquals(ultimas_viagens.count(), 3)
+        self.assertEqual(ultimas_viagens.count(), 3)
 
 
 class PontoTuristicoTestCase(TestCase):
@@ -259,10 +259,10 @@ class PontoTuristicoTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={self.url_pontos_turisticos}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.get(self.url_pontos_turisticos)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/ponto_turistico/index.html')
         pontos_turisticos = response.context['pontos_turisticos']
-        self.assertEquals(pontos_turisticos.count(), 1)
+        self.assertEqual(pontos_turisticos.count(), 1)
 
     def test_cadastrar_ponto_turistico_ok(self):
         """ Teste de cadastrar um ponto turístico """
@@ -274,7 +274,7 @@ class PontoTuristicoTestCase(TestCase):
             'foto': self.foto
         }
         response = self.client.post(self.url_pontos_turisticos, data, format='multipart')
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         last_ponto_turistico = PontoTuristico.objects.filter(titulo='Ponto turístico').last()
         self.assertRedirects(response, reverse('detalhes-ponto-turistico', kwargs={'pk': last_ponto_turistico.id}))
 
@@ -289,9 +289,9 @@ class PontoTuristicoTestCase(TestCase):
         }
         response = self.client.post(self.url_pontos_turisticos, data, format='multipart')
 
-        self.assertFormError(response, 'form', 'titulo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'opiniao', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'foto', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'titulo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'opiniao', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'foto', 'Este campo é obrigatório.')
 
     def test_atualizar_ponto_turistico_ok(self):
         """ Teste de atualizar ponto turístico """
@@ -304,12 +304,12 @@ class PontoTuristicoTestCase(TestCase):
             'foto': self.foto
         }
         response = self.client.post(url_atualizar, data, format='multipart')
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('detalhes-ponto-turistico', kwargs={'pk': self.ponto_turistico.id }))
 
         self.ponto_turistico.refresh_from_db()
-        self.assertEquals(self.ponto_turistico.titulo, 'Novo título do ponto turístico')
-        self.assertEquals(self.ponto_turistico.opiniao, 'opinião atualizada')
+        self.assertEqual(self.ponto_turistico.titulo, 'Novo título do ponto turístico')
+        self.assertEqual(self.ponto_turistico.opiniao, 'opinião atualizada')
 
     def test_atualizar_ponto_turistico_error(self):
         """ Teste de atualizar ponto turístico """
@@ -321,8 +321,8 @@ class PontoTuristicoTestCase(TestCase):
             'opiniao': ''
         }
         response = self.client.post(url_atualizar, data, format='multipart')
-        self.assertFormError(response, 'form', 'titulo', 'Este campo é obrigatório.')
-        self.assertFormError(response, 'form', 'opiniao', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'titulo', 'Este campo é obrigatório.')
+        self.assertFormError(response.context['form'], 'opiniao', 'Este campo é obrigatório.')
 
     def test_deletar_ponto_turistico(self):
         """ Teste deletar ponto turistico """
@@ -331,8 +331,8 @@ class PontoTuristicoTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={url_deletar_ponto_turistico}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.post(url_deletar_ponto_turistico)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(PontoTuristico.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PontoTuristico.objects.count(), 0)
 
 
 class PostViagemTestCase(TestCase):
@@ -372,20 +372,20 @@ class PostViagemTestCase(TestCase):
     def test_post_viagem_ativa_ok(self):
         """ Teste visualizar post de viagem ativa """
         response = self.client.get(self.url_post_viagem)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/post_viagem/index.html')
         viagem = response.context['viagem']
-        self.assertEquals(viagem.titulo, 'Primeira viagem')
-        self.assertEquals(viagem.ponto_turistico_viagem.count(), 1)
-        self.assertEquals(viagem.ponto_turistico_viagem.count(), 1)
-        self.assertEquals(viagem.likes.count(), 1)
+        self.assertEqual(viagem.titulo, 'Primeira viagem')
+        self.assertEqual(viagem.ponto_turistico_viagem.count(), 1)
+        self.assertEqual(viagem.ponto_turistico_viagem.count(), 1)
+        self.assertEqual(viagem.likes.count(), 1)
 
     def test_post_viagem_inativa_error(self):
         """ Teste visualizar post de viagem inativa"""
         self.viagem.ativo = False
         self.viagem.save()
         response = self.client.get(self.url_post_viagem)
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_curtir_post_viagem(self):
         """ Teste curtir postagem """
@@ -394,8 +394,8 @@ class PostViagemTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={url_like_post}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.post(url_like_post)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(self.viagem.likes.count(), 2)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.viagem.likes.count(), 2)
 
     def test_criar_comentario_ok(self):
         """ Teste criar comentário na postagem """
@@ -433,8 +433,8 @@ class PostViagemTestCase(TestCase):
         self.assertRedirects(response, self.url_login + f"?next={url_deletar_comentario}")
         self.client.login(email=self.user.email, password='senha_secreta')
         response = self.client.post(url_deletar_comentario)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(Comentario.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Comentario.objects.count(), 0)
 
 
 
@@ -481,41 +481,41 @@ class ListaViagensTestCase(TestCase):
     def test_lista_viagens(self):
         """ Teste lista de viagens """
         response = self.client.get(self.url_lista_viagens)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'viagens/lista-viagens.html')
         viagens = response.context['viagens']
-        self.assertEquals(viagens.count(),2)
+        self.assertEqual(viagens.count(),2)
 
     def test_lista_viagens_teste_filtro_titulo(self):
         """ Teste lista de viagens com filtro de titulo"""
         response = self.client.get(self.url_lista_viagens + '?titulo=São Paulo')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         viagens = response.context['viagens']
-        self.assertEquals(viagens.count(), 1)  
+        self.assertEqual(viagens.count(), 1)  
 
     def test_lista_viagens_teste_filtro_localidade(self):
         """ Teste lista de viagens com filtro de localidade"""
         response = self.client.get(self.url_lista_viagens + '?localidade=santos')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         viagens = response.context['viagens']
-        self.assertEquals(viagens[0].titulo, 'Viagem a Santos')  
-        self.assertEquals(viagens.count(), 1)  
+        self.assertEqual(viagens[0].titulo, 'Viagem a Santos')  
+        self.assertEqual(viagens.count(), 1)  
 
     def test_lista_viagens_teste_filtro_ordenacao(self):
         """ Teste lista de viagens com filtro de ordenacao"""
         response = self.client.get(self.url_lista_viagens + '?ordenacao=asc')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         viagens = response.context['viagens']
-        self.assertEquals(viagens[0].titulo, 'Viagem a São Paulo')
-        self.assertEquals(viagens.count(), 2)
+        self.assertEqual(viagens[0].titulo, 'Viagem a São Paulo')
+        self.assertEqual(viagens.count(), 2)
 
     def test_lista_viagens_teste_filtro_periodo(self):
         """ Teste lista de viagens com filtro entre periodo"""
         response = self.client.get(
             self.url_lista_viagens + '?data_postado_min=2021-10-09&data_postado_max=2021-10-09'
         )
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         viagens = response.context['viagens']
-        self.assertEquals(viagens.count(), 1)
+        self.assertEqual(viagens.count(), 1)
         viagens = response.context['viagens']
-        self.assertEquals(viagens[0].titulo, 'Viagem a Santos')
+        self.assertEqual(viagens[0].titulo, 'Viagem a Santos')
